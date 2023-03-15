@@ -23,12 +23,22 @@ mainButton.addEventListener('click', function () {
         inp.placeholder = 'Type Here...';
         inp.addEventListener('change', function () {
             var _a;
+            var div = document.createElement('div');
+            div.className = 'border-bottom border-dark d-flex align-items-center m-2';
+            var aDelete = document.createElement('a');
+            aDelete.innerHTML = '<svg style="color: red" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16"><path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/></svg>';
+            aDelete.addEventListener('click', function () {
+                var _a;
+                (_a = aDelete.parentElement) === null || _a === void 0 ? void 0 : _a.remove();
+            });
             var text = inp.value;
             var li = document.createElement('li');
             li.innerText = text;
             li.style = 'overflow-wrap: anywhere';
-            li.className = 'm-2';
-            (_a = inp.parentElement) === null || _a === void 0 ? void 0 : _a.insertBefore(li, inp);
+            li.className = 'flex-grow-1';
+            div.append(li);
+            div.append(aDelete);
+            (_a = inp.parentElement) === null || _a === void 0 ? void 0 : _a.insertBefore(div, inp);
             inp.remove();
         });
         (_a = a.parentElement) === null || _a === void 0 ? void 0 : _a.insertBefore(inp, a);
