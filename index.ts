@@ -1,10 +1,41 @@
-const mainButton = document.querySelector('#mainButton')!
-const todoLists = document.querySelector('.todoLists')!
+//           Fix button going back to its place after deletion
+function getuuid()
+{
+return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, variable_name =>
+(variable_name ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> variable_name / 4).toString(16)
+);
+}
+interface Todo {
+    id: string
+    heading: string;  
+}
+
+interface Todo extends Record<string,any> {
+        idp?: string
+        text?: string
+        checked?: boolean
+}
+
+const todos: Todo[] = []
+
+const mainButton = document.querySelector('#mainButton')! as HTMLButtonElement
+const todoLists = document.querySelector('.todoLists')! as HTMLDivElement
 
 const remove = (x: HTMLElement) => {
     x.parentElement?.parentElement?.remove()
 }
 mainButton.addEventListener('click', function () {
+    const id = getuuid()
+    const newTodo: Todo = {
+        id: id,
+        heading: '',
+        }
+    
+    todos.push(newTodo)
+    console.log(todos)
+    const mainId = document.createElement('input')
+    mainId.value = id
+    mainId.style.cssText = "display: none"
     const div = document.createElement('div')
     const divCol = document.createElement('div')
     divCol.className = 'col'
@@ -23,6 +54,8 @@ mainButton.addEventListener('click', function () {
         listName.innerText = text
         listName.style.cssText = "dislay: block"
         aEdit.style.cssText = "display: block"
+        const list = todos.find(c => c.id === mainId.value)
+        list!.heading = text
     })
     inpHead.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
@@ -31,8 +64,11 @@ mainButton.addEventListener('click', function () {
             listName.innerText = text
             listName.style.cssText = "dislay: block"
             aEdit.style.cssText = "display: block"
+            const list = todos.find(c => c.id === mainId.value)
+            list!.heading = text
         }
     })
+    divHead.append(mainId)
     divHead.append(inpHead)
     divHead.append(listName)
     const a = document.createElement('a')
@@ -40,7 +76,7 @@ mainButton.addEventListener('click', function () {
     aDelete.className = 'p-1'
     aDelete.innerHTML = '<svg style="color: red" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16"><path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/></svg>'
     aDelete.addEventListener('click', function () {
-        aDelete.parentElement?.parentElement?.parentElement?.remove()
+        aDelete.parentElement?.parentElement?.parentElement?.parentElement?.remove()
     })
     const aEdit = document.createElement('a')
     aEdit.style.cssText = "display: none"
@@ -58,6 +94,13 @@ mainButton.addEventListener('click', function () {
     divHead.append(divButtons)
     a.innerHTML = '<a class="todoList text-center listButton"><div><svg class="m-2" xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/></svg></div></a>'
     a.addEventListener('click', function () {
+        const list = todos.find(c => c.id === mainId.value)
+        const pointId = getuuid()
+        list!.li = {
+            id: pointId,
+            text: '',
+            checked: false
+        }
         const inp = document.createElement('input')
         const div = document.createElement('div')
         div.className ='d-flex align-items-center'

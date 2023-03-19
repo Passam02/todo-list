@@ -1,11 +1,27 @@
+//           Fix button going back to its place after deletion
+function getuuid() {
+    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, function (variable_name) {
+        return (variable_name ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> variable_name / 4).toString(16);
+    });
+}
+var todos = [];
 var mainButton = document.querySelector('#mainButton');
 var todoLists = document.querySelector('.todoLists');
 var remove = function (x) {
     var _a, _b;
     (_b = (_a = x.parentElement) === null || _a === void 0 ? void 0 : _a.parentElement) === null || _b === void 0 ? void 0 : _b.remove();
 };
-// edit
 mainButton.addEventListener('click', function () {
+    var id = getuuid();
+    var newTodo = {
+        id: id,
+        heading: ''
+    };
+    todos.push(newTodo);
+    console.log(todos);
+    var mainId = document.createElement('input');
+    mainId.value = id;
+    mainId.style.cssText = "display: none";
     var div = document.createElement('div');
     var divCol = document.createElement('div');
     divCol.className = 'col';
@@ -24,6 +40,8 @@ mainButton.addEventListener('click', function () {
         listName.innerText = text;
         listName.style.cssText = "dislay: block";
         aEdit.style.cssText = "display: block";
+        var list = todos.find(function (c) { return c.id === mainId.value; });
+        list.heading = text;
     });
     inpHead.addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
@@ -32,8 +50,11 @@ mainButton.addEventListener('click', function () {
             listName.innerText = text;
             listName.style.cssText = "dislay: block";
             aEdit.style.cssText = "display: block";
+            var list = todos.find(function (c) { return c.id === mainId.value; });
+            list.heading = text;
         }
     });
+    divHead.append(mainId);
     divHead.append(inpHead);
     divHead.append(listName);
     var a = document.createElement('a');
@@ -41,8 +62,8 @@ mainButton.addEventListener('click', function () {
     aDelete.className = 'p-1';
     aDelete.innerHTML = '<svg style="color: red" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16"><path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/></svg>';
     aDelete.addEventListener('click', function () {
-        var _a, _b, _c;
-        (_c = (_b = (_a = aDelete.parentElement) === null || _a === void 0 ? void 0 : _a.parentElement) === null || _b === void 0 ? void 0 : _b.parentElement) === null || _c === void 0 ? void 0 : _c.remove();
+        var _a, _b, _c, _d;
+        (_d = (_c = (_b = (_a = aDelete.parentElement) === null || _a === void 0 ? void 0 : _a.parentElement) === null || _b === void 0 ? void 0 : _b.parentElement) === null || _c === void 0 ? void 0 : _c.parentElement) === null || _d === void 0 ? void 0 : _d.remove();
     });
     var aEdit = document.createElement('a');
     aEdit.style.cssText = "display: none";
@@ -61,6 +82,13 @@ mainButton.addEventListener('click', function () {
     a.innerHTML = '<a class="todoList text-center listButton"><div><svg class="m-2" xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/></svg></div></a>';
     a.addEventListener('click', function () {
         var _a;
+        var list = todos.find(function (c) { return c.id === mainId.value; });
+        var pointId = getuuid();
+        list.li = {
+            id: pointId,
+            text: '',
+            checked: false
+        };
         var inp = document.createElement('input');
         var div = document.createElement('div');
         div.className = 'd-flex align-items-center';
