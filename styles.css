@@ -29,3 +29,6 @@ body {
     background-color: white;
     height: fit-content;
 }
+input {
+    border-radius: 15px;
+}
