@@ -3,9 +3,12 @@ function getuuid() {
         return (variable_name ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> variable_name / 4).toString(16);
     });
 }
-var todos = [];
-var mainButton = document.querySelector('#mainButton');
-var todoLists = document.querySelector('.todoLists');
+var removeLocalPoint = function (id, pointId) {
+    var todoJSON = localStorage.getItem(id);
+    var parsedTodo = JSON.parse(todoJSON);
+    delete parsedTodo.points[pointId];
+    localStorage.setItem(id, JSON.stringify(parsedTodo));
+};
 var changeLocalHeading = function (id, inpHead) {
     var todoJSON = localStorage.getItem(id);
     var parsedTodo = JSON.parse(todoJSON);
@@ -26,6 +29,19 @@ var isChecked = function (checked, id, pointId) {
     parsedTodo.points[pointId].checked = checked;
     localStorage.setItem(id, JSON.stringify(parsedTodo));
 };
+var readTodos = function () {
+    if (localStorage === null)
+        return [];
+    var localData = [], keys = Object.keys(localStorage), i = keys.length;
+    while (i--) {
+        localData.push(localStorage.getItem(keys[i]));
+    }
+    console.log(localData);
+    return localData;
+};
+var todos = readTodos();
+var mainButton = document.querySelector('#mainButton');
+var todoLists = document.querySelector('.todoLists');
 mainButton.addEventListener('click', function () {
     var id = getuuid();
     var newTodo = {
@@ -71,6 +87,7 @@ mainButton.addEventListener('click', function () {
     aDelete.addEventListener('click', function () {
         divCol.remove();
         todos = todos.filter(function (c) { return c.id !== mainId.value; });
+        localStorage.removeItem(id);
     });
     var aEdit = document.createElement('a');
     aEdit.style.cssText = "display: none";
@@ -112,6 +129,7 @@ mainButton.addEventListener('click', function () {
         aDelete.addEventListener('click', function () {
             liDiv.remove();
             delete list.points[pointId];
+            removeLocalPoint(id, pointId);
         });
         inp.placeholder = 'Type Here...';
         inp.className = 'flex-grow-1 mt-1 ms-1';
@@ -124,12 +142,13 @@ mainButton.addEventListener('click', function () {
             aDelete.addEventListener('click', function () {
                 div.remove();
                 delete list.points[thisId];
+                removeLocalPoint(id, pointId);
             });
             var aChecked = document.createElement('a');
             aChecked.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check-square-fill" viewBox="0 0 16 16"><path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm10.03 4.97a.75.75 0 0 1 .011 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.75.75 0 0 1 1.08-.022z"/></svg>';
             aChecked.style.cssText = "display: none";
             aChecked.addEventListener('click', function () {
-                li.style = '';
+                li.style.cssText = '';
                 aChecked.style.cssText = 'display: none';
                 aCheck.style.cssText = 'dislay: block';
                 isChecked(false, id, pointId);
@@ -137,7 +156,7 @@ mainButton.addEventListener('click', function () {
             var aCheck = document.createElement('a');
             aCheck.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check-square" viewBox="0 0 16 16"><path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/><path d="M10.97 4.97a.75.75 0 0 1 1.071 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.235.235 0 0 1 .02-.022z"/></svg>';
             aCheck.addEventListener('click', function () {
-                li.style = 'text-decoration: line-through';
+                li.style.cssText = 'text-decoration: line-through';
                 buttons.append(aChecked);
                 aCheck.style.cssText = 'display: none';
                 aChecked.style.cssText = 'display: block';

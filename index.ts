@@ -1,24 +1,15 @@
-
 function getuuid()
 {
 return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, variable_name =>
 (variable_name ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> variable_name / 4).toString(16)
 );
 }
-interface Todo { 
-    points: { 
-        [key: string]: {
-            text: string | null
-            checked: boolean
-        }
-    },
-    id: string
-    heading: string | null; 
+const removeLocalPoint = (id: string, pointId:string) => {
+    const todoJSON = localStorage.getItem(id)!
+    const parsedTodo = JSON.parse(todoJSON)
+    delete parsedTodo.points![pointId]
+    localStorage.setItem(id, JSON.stringify(parsedTodo))
 }
-var todos: Todo[] = []
-
-const mainButton = document.querySelector('#mainButton')! as HTMLButtonElement
-const todoLists = document.querySelector('.todoLists')! as HTMLDivElement
 
 const changeLocalHeading = (id: string, inpHead: HTMLInputElement) => {
     const todoJSON = localStorage.getItem(id)!
@@ -40,6 +31,35 @@ const isChecked = (checked: boolean, id: string, pointId:string) => {
     parsedTodo.points![pointId].checked = checked
     localStorage.setItem(id, JSON.stringify(parsedTodo))
 }
+interface Todo { 
+    points: { 
+        [key: string]: {
+            text: string | null
+            checked: boolean
+        }
+    },
+    id: string
+    heading: string | null; 
+}
+type readTodos = () => []
+const readTodos = () => {
+    if (localStorage === null) return []
+    var localData = [],
+        keys = Object.keys(localStorage),
+        i = keys.length;
+
+    while ( i-- ) {
+        localData.push( localStorage.getItem(keys[i]) );
+    }
+    console.log(localData)
+    return localData;
+}
+var todos: Todo[] = readTodos()
+
+const mainButton = document.querySelector('#mainButton')! as HTMLButtonElement
+const todoLists = document.querySelector('.todoLists')! as HTMLDivElement
+
+
 
 mainButton.addEventListener('click', function () {
     const id = getuuid()
@@ -86,6 +106,7 @@ mainButton.addEventListener('click', function () {
     aDelete.addEventListener('click', function () {
         divCol.remove()
         todos = todos.filter(c => c.id !== mainId.value)
+        localStorage.removeItem(id)
     })
     const aEdit = document.createElement('a')
     aEdit.style.cssText = "display: none"
@@ -127,6 +148,7 @@ mainButton.addEventListener('click', function () {
         aDelete.addEventListener('click', () => {
             liDiv.remove()
             delete list!.points![pointId as keyof Todo]
+            removeLocalPoint(id, pointId)
         })
         inp.placeholder = 'Type Here...'
         inp.className = 'flex-grow-1 mt-1 ms-1'
@@ -139,12 +161,13 @@ mainButton.addEventListener('click', function () {
             aDelete.addEventListener('click', () => {
                 div.remove()
                 delete list!.points![thisId as keyof Todo]
+                removeLocalPoint(id, pointId)
             })
             const aChecked = document.createElement('a')
             aChecked.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check-square-fill" viewBox="0 0 16 16"><path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm10.03 4.97a.75.75 0 0 1 .011 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.75.75 0 0 1 1.08-.022z"/></svg>'
             aChecked.style.cssText = "display: none"
             aChecked.addEventListener('click', () => {
-                li.style = ''
+                li.style.cssText = ''
                 aChecked.style.cssText = 'display: none'
                 aCheck.style.cssText = 'dislay: block'
                 isChecked(false,id,pointId)
@@ -152,7 +175,7 @@ mainButton.addEventListener('click', function () {
             const aCheck = document.createElement('a')
             aCheck.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check-square" viewBox="0 0 16 16"><path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/><path d="M10.97 4.97a.75.75 0 0 1 1.071 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.235.235 0 0 1 .02-.022z"/></svg>'
             aCheck.addEventListener('click', () => {
-                li.style = 'text-decoration: line-through'
+                li.style.cssText = 'text-decoration: line-through'
                 buttons.append(aChecked)
                 aCheck.style.cssText = 'display: none'
                 aChecked.style.cssText = 'display: block'
