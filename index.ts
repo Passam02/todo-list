@@ -1,4 +1,4 @@
-//           Fix button going back to its place after deletion
+
 function getuuid()
 {
 return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, variable_name =>
@@ -20,6 +20,27 @@ var todos: Todo[] = []
 const mainButton = document.querySelector('#mainButton')! as HTMLButtonElement
 const todoLists = document.querySelector('.todoLists')! as HTMLDivElement
 
+const changeLocalHeading = (id: string, inpHead: HTMLInputElement) => {
+    const todoJSON = localStorage.getItem(id)!
+    const parsedTodo = JSON.parse(todoJSON)
+    parsedTodo.heading = inpHead.value
+    localStorage.setItem(id, JSON.stringify(parsedTodo))
+}
+const changeHeading = (inpHead : HTMLInputElement, listName : HTMLHeadingElement, aEdit: HTMLAnchorElement, id: string) => {
+    inpHead.style.cssText = "display: none"
+    listName.innerText = inpHead.value
+    listName.style.cssText = "dislay: block"
+    aEdit.style.cssText = "display: block"
+    const list = todos.find(c => c.id === id)
+    list!.heading = inpHead.value
+}
+const isChecked = (checked: boolean, id: string, pointId:string) => {
+    const todoJSON = localStorage.getItem(id)!
+    const parsedTodo = JSON.parse(todoJSON)
+    parsedTodo.points![pointId].checked = checked
+    localStorage.setItem(id, JSON.stringify(parsedTodo))
+}
+
 mainButton.addEventListener('click', function () {
     const id = getuuid()
     const newTodo: Todo = {
@@ -28,7 +49,8 @@ mainButton.addEventListener('click', function () {
         points: {}
     }
     todos.push(newTodo)
-    console.log(todos)
+    const list = todos.find(c => c.id === id)
+    localStorage.setItem(id, JSON.stringify(list))
     const mainId = document.createElement('input')
     mainId.value = id
     mainId.style.cssText = "display: none"
@@ -45,23 +67,13 @@ mainButton.addEventListener('click', function () {
     const listName = document.createElement('h2')
     listName.className = 'text-center flex-grow-1 m-0'
     inpHead.addEventListener('change', () => {
-        let text = inpHead.value 
-        inpHead.style.cssText = "display: none"
-        listName.innerText = text
-        listName.style.cssText = "dislay: block"
-        aEdit.style.cssText = "display: block"
-        const list = todos.find(c => c.id === mainId.value)
-        list!.heading = text
+        changeHeading(inpHead,listName,aEdit,id)
+        changeLocalHeading(id, inpHead)
     })
     inpHead.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-            let text = inpHead.value 
-            inpHead.style.cssText = "display: none"
-            listName.innerText = text
-            listName.style.cssText = "dislay: block"
-            aEdit.style.cssText = "display: block"
-            const list = todos.find(c => c.id === mainId.value)
-            list!.heading = text
+            changeHeading(inpHead,listName,aEdit,id)
+            changeLocalHeading(id, inpHead)
         }
     })
     divHead.append(mainId)
@@ -97,6 +109,13 @@ mainButton.addEventListener('click', function () {
             text: null,
             checked: false
         }
+        const todoJSON = localStorage.getItem(id)!
+        const parsedTodo = JSON.parse(todoJSON)
+        parsedTodo.points![pointId as keyof Todo["points"]] = {
+            text: null,
+            checked: false
+        }
+        localStorage.setItem(id, JSON.stringify(parsedTodo))
         const liId = document.createElement('input')
         liId.value = pointId
         liId.style.cssText = "display: none"
@@ -112,7 +131,6 @@ mainButton.addEventListener('click', function () {
         inp.placeholder = 'Type Here...'
         inp.className = 'flex-grow-1 mt-1 ms-1'
         inp.addEventListener('change', function () {
-            
             const thisId = pointId
             const div = document.createElement('div')
             div.className = 'border-bottom border-dark d-flex align-items-center p-2'
@@ -129,6 +147,7 @@ mainButton.addEventListener('click', function () {
                 li.style = ''
                 aChecked.style.cssText = 'display: none'
                 aCheck.style.cssText = 'dislay: block'
+                isChecked(false,id,pointId)
             })
             const aCheck = document.createElement('a')
             aCheck.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check-square" viewBox="0 0 16 16"><path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/><path d="M10.97 4.97a.75.75 0 0 1 1.071 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.235.235 0 0 1 .02-.022z"/></svg>'
@@ -137,8 +156,13 @@ mainButton.addEventListener('click', function () {
                 buttons.append(aChecked)
                 aCheck.style.cssText = 'display: none'
                 aChecked.style.cssText = 'display: block'
+                isChecked(true,id,pointId)
             })
             list!.points![thisId as keyof Todo].text = inp.value
+            const todoJSON = localStorage.getItem(id)!
+            const parsedTodo = JSON.parse(todoJSON)
+            parsedTodo.points![pointId].text = inp.value
+            localStorage.setItem(id, JSON.stringify(parsedTodo))
             let text = inp.value
             const li = document.createElement('li')
             li.innerText = text
